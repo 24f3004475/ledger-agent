@@ -9,11 +9,23 @@ current_challenge = ContextVar("current_challenge", default=None)
 
 EMAIL = "24f3004475@ds.study.iitm.ac.in".strip().lower()
 
+
+from mcp.server.transport_security import TransportSecuritySettings
+
 mcp = FastMCP(
     "Exam Challenge Server",
     stateless_http=True,
-    json_response=True
+    json_response=True,
+    transport_security=TransportSecuritySettings(
+        allowed_hosts=[
+            "live-mcp-server-i7s9.onrender.com"
+        ],
+        allowed_origins=[
+            "https://live-mcp-server-i7s9.onrender.com"
+        ]
+    )
 )
+
 
 
 class ChallengeHeaderMiddleware:
