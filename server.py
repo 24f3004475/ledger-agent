@@ -56,6 +56,19 @@ def solve_challenge() -> str:
     return result[:16]
 
 
-app = ChallengeHeaderMiddleware(
-    mcp.streamable_http_app()
-)
+
+from starlette.responses import JSONResponse
+
+mcp_app = mcp.streamable_http_app()
+
+
+async def health(request):
+    return JSONResponse({"status": "ok"})
+
+
+from starlette.routing import Route
+
+mcp_app.routes.append(Route("/health", health, methods=["GET", "HEAD"]))
+
+app = ChallengeHeaderMiddleware(mcp_app)
+
