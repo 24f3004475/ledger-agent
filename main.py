@@ -79,11 +79,35 @@ def answer_question(request: QuestionRequest):
         answer = round(revenue_usd, 2)
 
     elif "refund" in question:
+    refunded = [
+        order for order in current_orders
+        if order["status"].lower() == "refunded"
+    ]
+
+    # Filter by region if the question specifies one
+    if "south" in question:
         refunded = [
-            order for order in current_orders
-            if order["status"].lower() == "refunded"
+            order for order in refunded
+            if order["region"].strip().lower() == "south"
         ]
-        answer = len(refunded)
+
+    # Filter by the business date in March 2026
+    if "march" in question and "2026" in question:
+        march_orders = []
+
+        for order in refunded:
+            created = datetime.fromisoformat(
+                order["created_at"].replace("Z", "+00:00")
+            )
+
+            created = created.astimezone(ZoneInfo("Asia/Kolkata"))
+
+            if created.year == 2026 and created.month == 3:
+                march_orders.append(order)
+
+        refunded = march_orders
+
+    answer = len(refunded)
 
     elif "customer" in question:
         answer = len(set(
