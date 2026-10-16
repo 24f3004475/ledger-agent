@@ -132,6 +132,28 @@ def answer_question(request: QuestionRequest):
         })
 
     # Revenue and sales: paid orders only, converted to USD
+    
+    # Average paid order value in USD
+    elif "average" in question or "avg" in question:
+        paid_orders = [
+            order for order in filtered
+            if order.get("status", "").lower() == "paid"
+        ]
+
+        if paid_orders:
+            total_usd = sum(
+                float(order.get("amount", 0))
+                * USD_RATES.get(
+                    order.get("currency", "USD").upper(), 0
+                )
+                for order in paid_orders
+            )
+
+            answer = round(total_usd / len(paid_orders), 2)
+        else:
+            answer = 0
+
+    # Revenue and sales: paid orders only, converted to USD
     elif "revenue" in question or "sales" in question:
         answer = round(sum(
             float(order.get("amount", 0))
@@ -139,6 +161,11 @@ def answer_question(request: QuestionRequest):
             for order in filtered
             if order.get("status", "").lower() == "paid"
         ), 2)
+
+    # Count orders
+    elif "order" in question:
+        answer = len(filtered)
+
 
     # Count orders
     elif "order" in question:
